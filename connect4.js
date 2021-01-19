@@ -1,12 +1,51 @@
-/* Connect Four
+/* ******************************************************************
+--------------------------- CONNECT 4 ----------------------------
+****************************************************************** */
  
-Player 1 and 2 alternate turns. On each turn, a piece is dropped down a column until a player gets four-in-a-row (horiz, vert, or diag) or until board fills (tie) */
+/* DESCRIPTION
+	--> Player 1 and 2 alternate turns. On each turn, a piece is dropped 		down a column until a player gets four-in-a-row (horiz, vert, or diag) or until board fills (tie).
+	--> Players can update their game piece colors, the number of rows and columns in the game board, and the number of adjacent pieces requred to win.
+	--> Colors and game board settings are saved to the browser's local storage. */
 
+// __________________________________________________________________
 
-// TODO: replace css formatting with js that enables players to pick colors?
-// let p1Color= document.getElementById('p1Color').value
-// let p2Color=document.getElementById('p2Color').value
-const settings = {
+/* TABLE OF CONTENTS
+
+	(1) SETTINGS
+ 		settings object, localStorage retrieval, html element variable creation, const and let creation, starting state for several variables.\
+
+	(2) makeBoard()
+		creates array in JS to represent gameboard for logical processes.
+
+	(3) makeBoardHtml()
+		creates game board in html based on makeBoard() output, creates top row for move selection, creates playable game table, resets variables and elements for new game.
+	
+	(4) handleClick()
+		triggered by player selecting a move.  Calls findSpotForCol() and placeInTable() to update the htmlBoard and board array.  Will end game as win or tie if necessary.
+	
+	(5) findSpotForCol()
+		after player has selected a column in which to drop their piece, returns null (if the column is already full) or the row number of the lowest available cell.
+		
+	(6) placeInTable()
+		creates a new div in htmlBoard after a player makes a move.
+		
+	(7) checkForWin()
+		systematically checks every value in the board array to determine if the active player has won the game.
+	
+	(8) checkForWin()
+		announces end of game as win or tie.
+	
+	(9) OTHER HELPER FUNCTIONS
+		mouseenterColorSelector(), input controls, reset button visibility adjustments, collection of functions that run when any input is changed to update settings, localStorage save funciton.
+	
+	(10) FUNCTIONS & METHODS TO RUN ON LOAD
+		makeBoard(), makeHtmlBoard(), updateGameHeading() and adding event listeners to html elements. */
+
+/* ******************************************************************
+----------------------------- SETTINGS ------------------------------
+****************************************************************** */
+
+const settings = { // default settings; these will be overwritten if there are settings saved in localStoarge.
 	gridWidth  : 7,
 	gridHeight : 6,
   connectNum : 4,
@@ -14,7 +53,7 @@ const settings = {
   p2Color: '#0000ff'
 };
 
-if (localStorage.getItem('connect4')){
+if (localStorage.getItem('connect4')){ // if settings were previous saved to localStorage, access and replace game board settings.
   const savedSettings = JSON.parse(localStorage.connect4)
   settings.gridWidth=savedSettings.gridWidth
   settings.gridHeight=savedSettings.gridHeight
@@ -23,38 +62,60 @@ if (localStorage.getItem('connect4')){
   settings.p2Color=savedSettings.p2Color
 }
 
-document.getElementById('p1Color').value=settings.p1Color
-document.getElementById('p2Color').value=settings.p2Color
+// CREATE CONST VARIABLES FOR OFTEN USED HTML ELEMENTS
+const p1Color=document.getElementById('p1Color')
+const p2Color=document.getElementById('p2Color')
 const resetBtn=document.getElementById('resetbtn')
-resetBtn.style.visibility="hidden"
 
-// let currPlayer = 1; // active player: 1 or 2
+// CREATE LET VARIABLES FOR CONTROLLING VARIABLES
 let board = []; // array of rows, each row is array of cells  (board[y][x])
 let winner=false
 
-// makeBoard: creates populates JS board to HEIGHT x WIDTH matrix array
+// STARTING STATE FOR SEVERAL VARIABLES
+p1Color.value=settings.p1Color
+p2Color.value=settings.p2Color
+resetBtn.style.visibility="hidden"
+
+/* ******************************************************************
+---------------------------- makeBoard() ----------------------------
+****************************************************************** */
+/* DESCRIPTION
+	--> makeBoard(): creates and populates JS board to HEIGHT x WIDTH matrix array.
+	--> board = array of rows, each row is array of cells  (board[h][w]) */
+
 function makeBoard() {
   board=[]
   for (let h = 0; h < settings.gridHeight; h++) {
 		board.push([]);
 		for (let w = 0; w < settings.gridWidth; w++) board[h].push(0);
 	}
-	// board = array of rows, each row is array of cells  (board[h][w])
 }
 
-// makeHtmlBoard(): make HTML table and row of column tops.
-function makeHtmlBoard() {
-	// get "htmlBoard" variable from the item in HTML w/ ID of "board", clear board
-  const htmlBoard = document.getElementById('board');
-  htmlBoard.innerHTML=''
+/* ******************************************************************
+-------------------------- makeHtmlBoard() --------------------------
+****************************************************************** */
+/* DESCRIPTION
+	--> makeHtmlBoard(): makes HTML table and row of column tops basd on board array created in makeBoard().
+	--> htmlBoard: html board element
+	--> if restarting the game, clears htmlBoard innerHTML before repopulating html elements. */
 
-	// create top row of game board in HTML as "tr" element, add id of "column-top", add 'click' event listener with callback handleClick()
-	// top = the row that changes color on hover; pieces cannot actually be played to any cell in this row.
+function makeHtmlBoard() {
+  const htmlBoard = document.getElementById('board'); // get "htmlBoard" variable from the item in HTML w/ ID of "board"
+  htmlBoard.innerHTML='' // clear board
+
+
+/* CREATE TOP ROW
+	-->  create top row of game board in HTML as "tr" element, add id of "column-top", add 'click' event listener with callback handleClick()
+	--> top = the row that changes color on hover; pieces cannot actually be played to any cell in this row. */
 	const top = document.createElement('tr');
 	top.setAttribute('id', 'column-top');
 	top.addEventListener('click', handleClick);
 
-	// create "td" elements, add id of board column number, populate top with new cells
+/* CREATE TD ELEMENTS IN TOP
+	--> create "td" elements, adds id of board column number, populatestop with new cells, appends top as the first child element of htmlBoard.
+	-- id and className are assigned for reference in subsequent processes.
+	--> adds eventListener to each cell in the top row so that the cell's background color changes to the other player's color when clicked (to indicate that it is now the other player's turn once a selection has been made).
+	--> adds eventListener to cells in top row that returns the background color to white on 'mouseleave' event */
 	for (let w = 0; w < settings.gridWidth; w++) {
 		const headCell = document.createElement('td');
 		headCell.setAttribute('id', w);
@@ -68,7 +129,11 @@ function makeHtmlBoard() {
 	}
 	htmlBoard.append(top); // append top to htmlBoard
 
-	// create a "tr" element for every game row, create "td" in each new "tr" for each column of the game, add ID to each "td" representing the row and column location, append new rows of new cells to gameBoard
+	/* CREATE TABLE REPRESENTING MOVES
+		--> creates a "tr" element for every game row.
+		--> creates "td" in each new "tr" for each column of the game.
+		--> adds ID to each "td" representing the row and column location
+		--> appends new rows to gameBoard as siblings of top. */
 	for (let h = 0; h < settings.gridHeight; h++) {
 		const row = document.createElement('tr');
 		row.classList.add('gameRow');
@@ -78,51 +143,33 @@ function makeHtmlBoard() {
 			row.append(cell);
 		}
 		htmlBoard.append(row);
-  }
-  // reset currPlayer, colors, reset button, and winner status
-  currPlayer = 1  // active player: 1 or 2
+	}
+	
+	/* RESET VARIABLES & ELEMENTS FOR NEW GAME
+		--> currPlayer, colors, reset button, and winner status. */
+  currPlayer = 1
   mouseenterColorSelector()
   hideResetBtn()
   winner=false
 }
 
-/** findSpotForCol(): given column x, return top empty y (null if filled) */
+/* ******************************************************************
+-------------------------- handleClick() ---------------------------
+****************************************************************** */
 
-function findSpotForCol(w) {
-	// TODO: write the real version of this, rather than always returning 0
+/* DESCRIPTION
+ --> handleClick(): handles click of column top to play piece.
+ --> checks winner variable to prevent additional clicks before game is reset
+ --> calls placeInTable() to update htmlBoard with new move.
+ --> updated board array to reflect move.
+ --> calls checkForWin() to determine if the currPlayer has won. On win: creates win messaging and calls endGame().
+ --> checks for tie. On tie: creates tie messaging and calls endGame()
+ --> switches the active player */
 
-	for (let h = settings.gridHeight - 1; h >= 0; h--) {
-		if (board[h][w] === 0) return h;
-	}
-	return null;
-}
-
-// placeInTable(): update DOM to place piece into HTML table of board
-function placeInTable(h, w) {
-	// get correct table cell
-	const tdAddDiv = document.getElementById(`${h}-${w}`);
-
-	// make a div, add 'piece' class and player calss, insert into correct table cell
-	const newDiv = document.createElement('div');
-	newDiv.classList.add('piece');
-	newDiv.classList.add(`p${currPlayer}`);
-	if (currPlayer === 1) newDiv.style.backgroundColor = settings.p1Color;
-	if (currPlayer === 2) newDiv.style.backgroundColor = settings.p2Color;
-	tdAddDiv.append(newDiv);
-}
-
-// endGame: announce game end
-function endGame(msg) {
-	// pop up alert message
-  alert(msg);
-  showResetBtn()
-}
-
-// handleClick: handle click of column top to play piece
 function handleClick(evt) {
-  if (winner) return // in order to prevent additional clicks before game is reset
+  if (winner) return 
 
-  // get column (w) from ID of clicked cell
+  // determines column (w) from ID of clicked top cell
   const w = +evt.target.id;
 
 	// get next spot in column (if none, ignore click)
@@ -134,7 +181,7 @@ function handleClick(evt) {
 	// place piece in board and add to HTML table
 	placeInTable(h, w);
 
-	// add line to update in-memory board
+	// update board array
 	board[h][w] = currPlayer;
 
 	// check for win
@@ -158,11 +205,54 @@ function handleClick(evt) {
 	}
 }
 
-// checkForWin: check board cell-by-cell for "does a win start here?"
+
+/* ******************************************************************
+------------------------- findSpotForCol() --------------------------
+****************************************************************** */
+
+/* DESCRIPTION
+	findSpotForCol(): given column w, return top empty h (null if filled) */
+
+function findSpotForCol(w) {
+	for (let h = settings.gridHeight - 1; h >= 0; h--) {
+		if (board[h][w] === 0) return h;
+	}
+	return null;
+}
+
+/* ******************************************************************
+-------------------------- placeInTable() ---------------------------
+****************************************************************** */
+
+/* DESCRIPTION
+	--> placeInTable(): updates DOM to place piece into HTML table of board.
+	--> when handleClick() is triggered by a player making a selction, gets correct table cell from findSpotForCol() and creates a div in htmlBoard. */
+
+	function placeInTable(h, w) {
+	const tdAddDiv = document.getElementById(`${h}-${w}`);
+
+	// make a div, add 'piece' class and player calss, insert into correct table cell
+	const newDiv = document.createElement('div');
+	newDiv.classList.add('piece');
+	newDiv.classList.add(`p${currPlayer}`);
+	if (currPlayer === 1) newDiv.style.backgroundColor = settings.p1Color;
+	if (currPlayer === 2) newDiv.style.backgroundColor = settings.p2Color;
+	tdAddDiv.append(newDiv);
+}
+
+/* ******************************************************************
+--------------------------- checkForWin() ---------------------------
+****************************************************************** */
+
+/* DESCRIPTION
+	--> checkForWin(): checks board cell-by-cell for "does a win start here?"
+	--> starting with every potential cell, creates arrays of potential winning combinations and calls _win() to determine if the arrays contain only the pieces of the actuve player.
+	--> the number of adjacent cells needed to win is dynamic, so array length varies based on Connect +/- selections. */
+
 function checkForWin() {
 	function _win(cells) {
-		// Check four cells to see if they're all color of current player
-		//  - cells: list of four (y, x) cells
+		// Check cells to see if they're all color of current player
+		//  - cells: list of # (y, x) cells
 		//  - returns true if all are legal coordinates & all match currPlayer
 
 		return cells.every(
@@ -171,15 +261,10 @@ function checkForWin() {
 	}
 
 	// cycle through every cells every row
-	// with cell as starting point, create arrays containing values of four spots to the right, four spots down, four spots diagonally right, and four spots diagonally right for a win
+	// with cell as starting point, create arrays containing values of # spots to the right, # spots down, # spots diagonally right, and # spots diagonally right for a win
 	// a win is achieved if any of these arrays contain entirely one player's number (ex: horiz = [ 2, 2, 2, 2 ])
 	for (let y = 0; y < settings.gridHeight; y++) {
 		for (let x = 0; x < settings.gridWidth; x++) {
-			// const horiz = [ [ y, x ], [ y, x + 1 ], [ y, x + 2 ], [ y, x + 3 ] ];
-			// const vert = [ [ y, x ], [ y + 1, x ], [ y + 2, x ], [ y + 3, x ] ];
-			// const diagDR = [ [ y, x ], [ y + 1, x + 1 ], [ y + 2, x + 2 ], [ y + 3, x + 3 ] ];
-			// const diagDL = [ [ y, x ], [ y + 1, x - 1 ], [ y + 2, x - 2 ], [ y + 3, x - 3 ] ];
-
 			const horiz = [];
 			for (let i = 0; i < settings.connectNum; i++) horiz.push([ y, x + i ]);
 
@@ -201,14 +286,31 @@ function checkForWin() {
 	}
 }
 
+
+/* ******************************************************************
+----------------------------- endGame() -----------------------------
+****************************************************************** */
+
+/* DESCRIPTION
+	endGame(): announces game end on tie or win. */
+function endGame(msg) {
+	// pop up alert message
+  alert(msg);
+  showResetBtn()
+}
+
+/* ******************************************************************
+----------------------- OTHER HELPER FUNCTIONS ----------------------
+****************************************************************** */
+
 mouseenterColorSelector = () => {
-	// add event handler for hover color of top row
+	// adds event handler for hover color of top row
 	const topRowSquares = document.querySelectorAll('.topcell');
 	const p1Pieces = document.querySelectorAll('.p1');
 	const p2Pieces = document.querySelectorAll('.p2');
   
-  settings.p1Color = document.getElementById('p1Color').value;
-  settings.p2Color = document.getElementById('p2Color').value;
+  settings.p1Color = p1Color.value;
+  settings.p2Color = p2Color.value;
   updateLocalStorage()
 
 	for (let i = 0; i < topRowSquares.length; i++) {
@@ -217,7 +319,7 @@ mouseenterColorSelector = () => {
 			if (currPlayer === 2) e.target.style.backgroundColor = settings.p2Color;
 		});
 	}
-
+	// updates the background color of existing pieces on the html board if a player changes their player color.
 	for (let i = 0; i < p1Pieces.length; i++) {
 		p1Pieces[i].style.backgroundColor = settings.p1Color;
 	}
@@ -281,7 +383,10 @@ resetFunctions=()=>{
   updateLocalStorage()
 }
 
-// functions to run on load
+/* ******************************************************************
+----------------- FUNCTIONS & METHODS TO RUN ON LOAD ----------------
+****************************************************************** */
+
 makeBoard();
 makeHtmlBoard();
 updateGameHeading()
@@ -293,6 +398,6 @@ document.getElementById('widthincrease').addEventListener('click', increaseGridW
 document.getElementById('widthdecrease').addEventListener('click', decreaseGridWidth);
 document.getElementById('winnumincrease').addEventListener('click', winNumIncrease);
 document.getElementById('winnumdecrease').addEventListener('click', winNumDecrease);
-document.getElementById('p1Color').addEventListener('change', mouseenterColorSelector);
-document.getElementById('p2Color').addEventListener('change', mouseenterColorSelector);
+p1Color.addEventListener('change', mouseenterColorSelector);
+p2Color.addEventListener('change', mouseenterColorSelector);
 resetBtn.addEventListener('click',resetFunctions)
