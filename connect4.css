@@ -1,28 +1,144 @@
-/* game board table */
+body {
+  background-color: whitesmoke;
+  font-family: 'Dosis', sans-serif;
+}
 
+#gameheading {
+  text-align: center;
+  font-size: 40px;
+  margin: 15px;
+}
+
+#gamediv {
+	margin-left: 25vw;
+	padding: 10px;
+	display: inline-flex;
+	justify-content: center;
+	border: solid 1px #666;
+	background-color: white;
+}
+
+#inputs {
+	width: 200px;
+	height: 334px;
+	background-color: whitesmoke;
+	float: left;
+	margin-right: 0.75vw;
+	margin-top: 58px;
+	border: solid 1px #666;
+}
+
+/* game board table */
 #board td {
-  width: 50px;
-  height: 50px;
-  border: solid 1px #666;
+	width: 50px;
+	height: 50px;
+	border: solid 1px #666;
+}
+
+table {
+	/* prevents pieces from being shown above the board when falling into place */
+	overflow: hidden;
+}
+
+tr.gameRow {
+	background-color: whitesmoke;
 }
 
 /* pieces are div within game table cells: draw as colored circles */
-
 .piece {
-  /* TODO: make into circles */
-  margin: 5px;
-  width: 80%;
-  height: 80%;
+	margin: 3px;
+	width: 45px;
+	height: 45px;
+	border-radius: 50%;
+	animation-name: piece-drop;
+	animation-duration: 1.0s;
+	animation-timing-function: linear;
 }
 
-/* TODO: make pieces red/blue,  depending on player 1/2 piece */
+/* controls how the pieces drop from the top and bounce before resting */
+@keyframes piece-drop {
+	0% {
+		transform: translate(0, -1000%);
+	}
+	50% {
+		transform: translate(0, 0);
+	}
+	65% {
+		transform: translate(0, -35px);
+	}
+	75% {
+		transform: translate(0, 0px);
+	}
+	85% {
+		transform: translate(0, -15px);
+	}
+	90% {
+		transform: translate(0, 0px);
+	}
+	95% {
+		transform: translate(0, -5px);
+	}
+}
+
+/* .p1{
+  background-color: red;
+}
+.p2{
+  background-color: blue;
+} */
 
 /* column-top is table row of clickable areas for each column */
-
 #column-top td {
-  border: dashed 1px lightgray;
+	border: dashed 1px lightgray;
 }
 
 #column-top td:hover {
-  background-color: gold;
+	transition: 750ms;
+}
+
+/* #gridInputs div{
+  float: left;
+} */
+
+button {
+	margin: 0px;
+	margin-left: 5px;
+	border: 0px;
+	padding: 1px;
+	font-size: 30px;
+	background: transparent;
+	vertical-align: middle;
+}
+
+#resetbtn {
+  position: absolute;
+  left: 50vw;
+  top: 50vh;
+  margin-top: -100px;
+  margin-left: -100px;
+	border: 1px solid black;
+	border-radius: 50%;
+	height: 200px;
+  width: 200px;
+  background-color: white;
+  word-wrap: normal;
+  font-size:50px;
+  transition-property: transform;
+  transition-duration: 1s;
+}
+
+#resetbtn:hover{
+  transform: rotate(360deg);
+}
+
+label {
+	vertical-align: middle;
+	margin-left: 5px;
+}
+
+button:hover {
+	background-color: rgba(102, 102, 102, 0.25);
+	border: 1px solid black;
+	padding: 0px;
+	border-radius: 25%;
 }

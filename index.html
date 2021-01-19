@@ -2,11 +2,34 @@
 <head>
   <title>Connect 4</title>
   <link href="connect4.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@300&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div id="game">
-  <table id="board"></table>
+  <div id="game">
+    <h1 id="gameheading">Connect 4</h1> <br>
+    <button id="resetbtn">Reset Game</button>
+    <div id="gamediv">
+      <div id="inputs">
+        <div id="gridInputs">
+          <button id="heightdecrease">▲</button><label for="heightdecrease">fewer rows</label><br>
+          <button id="heightincrease">▼</button><label for="heightincrease">more rows</label><br>
+          <button id="widthdecrease">◄</button><label for="widthdecrease">fewer columns</label> <br>
+          <button id="widthincrease">►</button><label for="widthincrease">more columns</label>
+        </div>
+        <br>
+        <div id="numberToWin">
+          <button id="winnumincrease">▲</button><label for="winnumincrease">Connect +</label> <br>
+          <button id="winnumdecrease">▼</button><label for="winnumdecrease">Connect -</label>
+        </div>
+        <br>
+        <label for="p1Color">Player One Color</label><input type="color" name="" id="p1Color">
+        <br>
+        <label for="p2Color">Player Two Color</label><input type="color" name="" id="p2Color">
+      </div>
+      <table id="board"></table>
+    </div>
 </div>
 
 <script src="connect4.js"></script>
