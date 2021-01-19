@@ -20,11 +20,13 @@ body {
 
 #inputs {
 	width: 200px;
-	height: 334px;
+	height: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
 	background-color: whitesmoke;
 	float: left;
 	margin-right: 0.75vw;
-	margin-top: 58px;
+	margin-top:58px;
 	border: solid 1px #666;
 }
 
@@ -113,8 +115,7 @@ button {
 #resetbtn {
   position: absolute;
   left: 50vw;
-  top: 50vh;
-  margin-top: -100px;
+  top: 200px;
   margin-left: -100px;
 	border: 1px solid black;
 	border-radius: 50%;
