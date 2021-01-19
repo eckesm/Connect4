@@ -1,7 +1,7 @@
 /* ******************************************************************
 --------------------------- CONNECT 4 ----------------------------
 ****************************************************************** */
- 
+
 /* DESCRIPTION
 	--> Player 1 and 2 alternate turns. On each turn, a piece is dropped 		down a column until a player gets four-in-a-row (horiz, vert, or diag) or until board fills (tie).
 	--> Players can update their game piece colors, the number of rows and columns in the game board, and the number of adjacent pieces requred to win.
@@ -45,36 +45,38 @@
 ----------------------------- SETTINGS ------------------------------
 ****************************************************************** */
 
-const settings = { // default settings; these will be overwritten if there are settings saved in localStoarge.
+const settings = {
+	// default settings; these will be overwritten if there are settings saved in localStoarge.
 	gridWidth  : 7,
 	gridHeight : 6,
-  connectNum : 4,
-  p1Color:'#ff0000',
-  p2Color: '#0000ff'
+	connectNum : 4,
+	p1Color    : '#ff0000',
+	p2Color    : '#0000ff'
 };
 
-if (localStorage.getItem('connect4')){ // if settings were previous saved to localStorage, access and replace game board settings.
-  const savedSettings = JSON.parse(localStorage.connect4)
-  settings.gridWidth=savedSettings.gridWidth
-  settings.gridHeight=savedSettings.gridHeight
-  settings.connectNum=savedSettings.connectNum
-  settings.p1Color=savedSettings.p1Color
-  settings.p2Color=savedSettings.p2Color
+if (localStorage.getItem('connect4')) {
+	// if settings were previous saved to localStorage, access and replace game board settings.
+	const savedSettings = JSON.parse(localStorage.connect4);
+	settings.gridWidth = savedSettings.gridWidth;
+	settings.gridHeight = savedSettings.gridHeight;
+	settings.connectNum = savedSettings.connectNum;
+	settings.p1Color = savedSettings.p1Color;
+	settings.p2Color = savedSettings.p2Color;
 }
 
 // CREATE CONST VARIABLES FOR OFTEN USED HTML ELEMENTS
-const p1Color=document.getElementById('p1Color')
-const p2Color=document.getElementById('p2Color')
-const resetBtn=document.getElementById('resetbtn')
+const p1Color = document.getElementById('p1Color');
+const p2Color = document.getElementById('p2Color');
+const resetBtn = document.getElementById('resetbtn');
 
 // CREATE LET VARIABLES FOR CONTROLLING VARIABLES
 let board = []; // array of rows, each row is array of cells  (board[y][x])
-let winner=false
+let winner = false;
 
 // STARTING STATE FOR SEVERAL VARIABLES
-p1Color.value=settings.p1Color
-p2Color.value=settings.p2Color
-resetBtn.style.visibility="hidden"
+p1Color.value = settings.p1Color;
+p2Color.value = settings.p2Color;
+resetBtn.style.visibility = 'hidden';
 
 /* ******************************************************************
 ---------------------------- makeBoard() ----------------------------
@@ -84,8 +86,8 @@ resetBtn.style.visibility="hidden"
 	--> board = array of rows, each row is array of cells  (board[h][w]) */
 
 function makeBoard() {
-  board=[]
-  for (let h = 0; h < settings.gridHeight; h++) {
+	board = [];
+	for (let h = 0; h < settings.gridHeight; h++) {
 		board.push([]);
 		for (let w = 0; w < settings.gridWidth; w++) board[h].push(0);
 	}
@@ -100,18 +102,17 @@ function makeBoard() {
 	--> if restarting the game, clears htmlBoard innerHTML before repopulating html elements. */
 
 function makeHtmlBoard() {
-  const htmlBoard = document.getElementById('board'); // get "htmlBoard" variable from the item in HTML w/ ID of "board"
-  htmlBoard.innerHTML='' // clear board
+	const htmlBoard = document.getElementById('board'); // get "htmlBoard" variable from the item in HTML w/ ID of "board"
+	htmlBoard.innerHTML = ''; // clear board
 
-
-/* CREATE TOP ROW
+	/* CREATE TOP ROW
 	-->  create top row of game board in HTML as "tr" element, add id of "column-top", add 'click' event listener with callback handleClick()
 	--> top = the row that changes color on hover; pieces cannot actually be played to any cell in this row. */
 	const top = document.createElement('tr');
 	top.setAttribute('id', 'column-top');
 	top.addEventListener('click', handleClick);
 
-/* CREATE TD ELEMENTS IN TOP
+	/* CREATE TD ELEMENTS IN TOP
 	--> create "td" elements, adds id of board column number, populatestop with new cells, appends top as the first child element of htmlBoard.
 	-- id and className are assigned for reference in subsequent processes.
 	--> adds eventListener to each cell in the top row so that the cell's background color changes to the other player's color when clicked (to indicate that it is now the other player's turn once a selection has been made).
@@ -121,15 +122,19 @@ function makeHtmlBoard() {
 		headCell.setAttribute('id', w);
 		headCell.classList.add('topcell');
 		headCell.addEventListener('click', e => {
-			if (currPlayer === 1) e.target.style.backgroundColor = settings.p2Color;
-      if (currPlayer === 2) e.target.style.backgroundColor = settings.p1Color;
+			if (winner === true) {
+				e.target.style.backgroundColor = 'white';
+			} else {
+				if (currPlayer === 1) e.target.style.backgroundColor = settings.p2Color;
+				if (currPlayer === 2) e.target.style.backgroundColor = settings.p1Color;
+			}
 		});
 		headCell.addEventListener('mouseleave', e => (e.target.style.backgroundColor = 'white'));
 		top.append(headCell);
 	}
 	htmlBoard.append(top); // append top to htmlBoard
 
-	/* CREATE TABLE REPRESENTING MOVES
+	/* CREATE HTML TABLE FOR PIECES
 		--> creates a "tr" element for every game row.
 		--> creates "td" in each new "tr" for each column of the game.
 		--> adds ID to each "td" representing the row and column location
@@ -144,13 +149,13 @@ function makeHtmlBoard() {
 		}
 		htmlBoard.append(row);
 	}
-	
+
 	/* RESET VARIABLES & ELEMENTS FOR NEW GAME
 		--> currPlayer, colors, reset button, and winner status. */
-  currPlayer = 1
-  mouseenterColorSelector()
-  hideResetBtn()
-  winner=false
+	currPlayer = 1;
+	mouseenterColorSelector();
+	hideResetBtn();
+	winner = false;
 }
 
 /* ******************************************************************
@@ -167,10 +172,10 @@ function makeHtmlBoard() {
  --> switches the active player */
 
 function handleClick(evt) {
-  if (winner) return 
+	if (winner) return;
 
-  // determines column (w) from ID of clicked top cell
-  const w = +evt.target.id;
+	// determines column (w) from ID of clicked top cell
+	const w = +evt.target.id;
 
 	// get next spot in column (if none, ignore click)
 	const h = findSpotForCol(w);
@@ -185,10 +190,11 @@ function handleClick(evt) {
 	board[h][w] = currPlayer;
 
 	// check for win
-	if (checkForWin()) setTimeout(() => endGame(`Player ${currPlayer===1 ? currPlayer=2 : currPlayer=1} won!`), 1000);
+	if (checkForWin())
+		setTimeout(() => endGame(`Player ${currPlayer === 1 ? (currPlayer = 2) : (currPlayer = 1)} won!`), 1000);
 
 	// check for tie: check if all cells in board are filled; if so call, call endGame
-	if (board.every(arr => arr.every(el => el !== 0)))
+	if (board.every(arr => arr.every(el => el !== 0))) {
 		setTimeout(
 			() =>
 				endGame(
@@ -196,6 +202,8 @@ function handleClick(evt) {
 				),
 			1000
 		);
+		winner = true;
+	}
 
 	// switch currPlayer 1 <-> 2
 	if (currPlayer === 1) {
@@ -204,7 +212,6 @@ function handleClick(evt) {
 		currPlayer = 1;
 	}
 }
-
 
 /* ******************************************************************
 ------------------------- findSpotForCol() --------------------------
@@ -228,7 +235,7 @@ function findSpotForCol(w) {
 	--> placeInTable(): updates DOM to place piece into HTML table of board.
 	--> when handleClick() is triggered by a player making a selction, gets correct table cell from findSpotForCol() and creates a div in htmlBoard. */
 
-	function placeInTable(h, w) {
+function placeInTable(h, w) {
 	const tdAddDiv = document.getElementById(`${h}-${w}`);
 
 	// make a div, add 'piece' class and player calss, insert into correct table cell
@@ -279,13 +286,12 @@ function checkForWin() {
 
 			// player wins if horiz, vert, diagDR, or diagDL is true for the given y,x
 			if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
-        winner=true
+				winner = true;
 				return true;
 			}
 		}
 	}
 }
-
 
 /* ******************************************************************
 ----------------------------- endGame() -----------------------------
@@ -295,8 +301,8 @@ function checkForWin() {
 	endGame(): announces game end on tie or win. */
 function endGame(msg) {
 	// pop up alert message
-  alert(msg);
-  showResetBtn()
+	alert(msg);
+	showResetBtn();
 }
 
 /* ******************************************************************
@@ -304,19 +310,26 @@ function endGame(msg) {
 ****************************************************************** */
 
 mouseenterColorSelector = () => {
-	// adds event handler for hover color of top row
+	/* DESCRIPTION
+mouseenterColorSelector(): when player colors change, applies updated event listerner to top cells and change all existing game pieces to the new colors. */
+
 	const topRowSquares = document.querySelectorAll('.topcell');
 	const p1Pieces = document.querySelectorAll('.p1');
 	const p2Pieces = document.querySelectorAll('.p2');
-  
-  settings.p1Color = p1Color.value;
-  settings.p2Color = p2Color.value;
-  updateLocalStorage()
 
+	settings.p1Color = p1Color.value;
+	settings.p2Color = p2Color.value;
+	updateLocalStorage();
+
+	// adds event handler to show the current player's color when the mouse enter the cell
 	for (let i = 0; i < topRowSquares.length; i++) {
 		topRowSquares[i].addEventListener('mouseenter', e => {
-			if (currPlayer === 1) e.target.style.backgroundColor = settings.p1Color;
-			if (currPlayer === 2) e.target.style.backgroundColor = settings.p2Color;
+			if (winner === true) {
+				e.target.style.backgroundColor = 'white'; // prevents top background colors from changing after a win or tie
+			} else {
+				if (currPlayer === 1) e.target.style.backgroundColor = settings.p1Color;
+				if (currPlayer === 2) e.target.style.backgroundColor = settings.p2Color;
+			}
 		});
 	}
 	// updates the background color of existing pieces on the html board if a player changes their player color.
@@ -329,59 +342,75 @@ mouseenterColorSelector = () => {
 	}
 };
 
-// button controls
-increaseGridHeight=()=>{
-  settings.gridHeight++
-  resetFunctions()
-}
+// __________________________________________________________________
 
-decreaseGridHeight=()=>{
-  settings.gridHeight--
-  resetFunctions()
-}
+// ----- BUTTON CONTROLS -----
 
-increaseGridWidth=()=>{
-  settings.gridWidth++
-  resetFunctions()
-}
+increaseGridHeight = () => {
+	settings.gridHeight++;
+	resetFunctions();
+};
 
-decreaseGridWidth=()=>{
-  settings.gridWidth--
-  resetFunctions()
-}
+decreaseGridHeight = () => {
+	if (settings.gridHeight > 3) {
+		// prevents the grid height from being less than 3 rows
+		settings.gridHeight--;
+		resetFunctions();
+	}
+};
 
-winNumIncrease=()=>{
-  settings.connectNum++
-  resetFunctions()
-}
+increaseGridWidth = () => {
+	settings.gridWidth++;
+	resetFunctions();
+};
 
-winNumDecrease=()=>{
-  settings.connectNum--
-  resetFunctions()
-}
+decreaseGridWidth = () => {
+	if (settings.gridWidth > 3) {
+		// prevents the grid width from being less than 3 columns
+		settings.gridWidth--;
+		resetFunctions();
+	}
+};
 
-updateLocalStorage=()=>{
-  localStorage.setItem('connect4',JSON.stringify(settings))
-}
+winNumIncrease = () => {
+	settings.connectNum++;
+	resetFunctions();
+};
 
-updateGameHeading=()=>{
-  document.getElementById('gameheading').innerText=`Connect ${settings.connectNum}`
-}
+winNumDecrease = () => {
+	if (settings.connectNum > 3) {
+		// prevents the winning number of connected pieces required to win from being less than 3
+		settings.connectNum--;
+		resetFunctions();
+	}
+};
 
-hideResetBtn=()=>{
-  resetBtn.style.visibility='hidden'
-}
+// __________________________________________________________________
 
-showResetBtn=()=>{
-  resetBtn.style.visibility='visible'
-}
+// ----- OTHER AUXILLARY FUNCTIONS -----
 
-resetFunctions=()=>{
-  makeBoard();
-  makeHtmlBoard();  
-  updateGameHeading()
-  updateLocalStorage()
-}
+updateGameHeading = () => {
+	document.getElementById('gameheading').innerText = `Connect ${settings.connectNum}`;
+};
+
+hideResetBtn = () => {
+	resetBtn.style.visibility = 'hidden';
+};
+
+showResetBtn = () => {
+	resetBtn.style.visibility = 'visible';
+};
+
+updateLocalStorage = () => {
+	localStorage.setItem('connect4', JSON.stringify(settings));
+};
+
+resetFunctions = () => {
+	makeBoard();
+	makeHtmlBoard();
+	updateGameHeading();
+	updateLocalStorage();
+};
 
 /* ******************************************************************
 ----------------- FUNCTIONS & METHODS TO RUN ON LOAD ----------------
@@ -389,7 +418,7 @@ resetFunctions=()=>{
 
 makeBoard();
 makeHtmlBoard();
-updateGameHeading()
+updateGameHeading();
 
 // apply event handlers for input buttons
 document.getElementById('heightincrease').addEventListener('click', increaseGridHeight);
@@ -400,4 +429,4 @@ document.getElementById('winnumincrease').addEventListener('click', winNumIncrea
 document.getElementById('winnumdecrease').addEventListener('click', winNumDecrease);
 p1Color.addEventListener('change', mouseenterColorSelector);
 p2Color.addEventListener('change', mouseenterColorSelector);
-resetBtn.addEventListener('click',resetFunctions)
+resetBtn.addEventListener('click', resetFunctions);
