@@ -128,16 +128,29 @@ button:hover {
   position: absolute;
   left: 50vw;
   top: 200px;
-  margin-left: -100px;
 	border: 1px solid black;
 	border-radius: 50%;
-	height: 200px;
-  width: 200px;
   background-color: white;
   word-wrap: normal;
+	transition: all 1s;
+	outline: none;
+}
+
+#resetbtn.large {
+  left: 50vw;
+  top: 200px;
+  margin-left: -100px;
+	height: 200px;
+  width: 200px;
   font-size:50px;
-  transition-property: transform;
-  transition-duration: 1s;
+}
+
+#resetbtn.small {
+  left: 10px;
+  top: 10px;
+	height: 125px;
+	width: 125px;
+	font-size:30px;
 }
 
 #resetbtn:hover{

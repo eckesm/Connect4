@@ -71,7 +71,6 @@ let winner = false;
 // STARTING STATE FOR SEVERAL VARIABLES
 document.getElementById('p1Color').value = settings.p1Color;
 document.getElementById('p2Color').value = settings.p2Color;
-document.getElementById('resetbtn').style.visibility = 'hidden';
 
 /* ******************************************************************
 ---------------------------- makeBoard() ----------------------------
@@ -418,11 +417,13 @@ updateGameHeading = () => {
 };
 
 hideResetBtn = () => {
-	document.getElementById('resetbtn').style.visibility = 'hidden';
+	document.getElementById('resetbtn').classList.add("small");
+	document.getElementById('resetbtn').classList.remove("large");
 };
 
 showResetBtn = () => {
-	document.getElementById('resetbtn').style.visibility = 'visible';
+	document.getElementById('resetbtn').classList.remove("small");
+	document.getElementById('resetbtn').classList.add("large");
 };
 
 updateLocalStorage = (localStorageItem) => {
