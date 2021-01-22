@@ -36,7 +36,7 @@
 		announces end of game as win or tie.
 	
 	(9) OTHER HELPER FUNCTIONS
-		mouseenterColorSelector(), input controls, reset button visibility adjustments, collection of functions that run when any input is changed to update settings, localStorage save funciton.
+		colorChanger(), input controls, reset button visibility adjustments, collection of functions that run when any input is changed to update settings, localStorage save funciton.
 	
 	(10) FUNCTIONS & METHODS TO RUN ON LOAD
 		makeBoard(), makeHtmlBoard(), updateGameHeading() and adding event listeners to html elements. */
@@ -51,7 +51,7 @@ const settings = {
 	gridHeight : 6,
 	connectNum : 4,
 	p1Color    : '#ff0000',
-	p2Color    : '#0000ff'
+	p2Color    : '#00ffff'
 };
 
 if (localStorage.getItem('connect4')) {
@@ -64,19 +64,14 @@ if (localStorage.getItem('connect4')) {
 	settings.p2Color = savedSettings.p2Color;
 }
 
-// CREATE CONST VARIABLES FOR OFTEN USED HTML ELEMENTS
-const p1Color = document.getElementById('p1Color');
-const p2Color = document.getElementById('p2Color');
-const resetBtn = document.getElementById('resetbtn');
-
 // CREATE LET VARIABLES FOR CONTROLLING VARIABLES
 let board = []; // array of rows, each row is array of cells  (board[y][x])
 let winner = false;
 
 // STARTING STATE FOR SEVERAL VARIABLES
-p1Color.value = settings.p1Color;
-p2Color.value = settings.p2Color;
-resetBtn.style.visibility = 'hidden';
+document.getElementById('p1Color').value = settings.p1Color;
+document.getElementById('p2Color').value = settings.p2Color;
+document.getElementById('resetbtn').style.visibility = 'hidden';
 
 /* ******************************************************************
 ---------------------------- makeBoard() ----------------------------
@@ -153,7 +148,7 @@ function makeHtmlBoard() {
 	/* RESET VARIABLES & ELEMENTS FOR NEW GAME
 		--> currPlayer, colors, reset button, and winner status. */
 	currPlayer = 1;
-	mouseenterColorSelector();
+	colorChanger();
 	hideResetBtn();
 	winner = false;
 }
@@ -309,17 +304,32 @@ function endGame(msg) {
 ----------------------- OTHER HELPER FUNCTIONS ----------------------
 ****************************************************************** */
 
-mouseenterColorSelector = () => {
+colorChanger = () => {
 	/* DESCRIPTION
-mouseenterColorSelector(): when player colors change, applies updated event listerner to top cells and change all existing game pieces to the new colors. */
+colorChanger(): when player colors change, applies updated event listerner to top cells and change all existing game pieces to the new colors. */
 
+	const p1Color = document.getElementById('p1Color')
+	const p2Color = document.getElementById('p2Color')
+	const heading = document.getElementById('gameheading');
+	const body = document.querySelector('body');
+	const buttons = document.querySelectorAll('button');
 	const topRowSquares = document.querySelectorAll('.topcell');
 	const p1Pieces = document.querySelectorAll('.p1');
 	const p2Pieces = document.querySelectorAll('.p2');
 
-	settings.p1Color = p1Color.value;
-	settings.p2Color = p2Color.value;
-	updateLocalStorage();
+	settings.p1Color = p1Color.value
+	settings.p2Color = p2Color.value
+	updateLocalStorage(settings);
+
+	// change heading color and body color to reflect game piece colors
+	heading.style.backgroundColor=convertHexToRgb(p1Color.value,0.8)
+	heading.style.color=settings.p2Color
+	body.style.backgroundColor=convertHexToRgb(p2Color.value,0.5)
+	
+	// update button colors
+	for(let button of buttons){
+		button.style.color=settings.p1Color
+	}
 
 	// adds event handler to show the current player's color when the mouse enter the cell
 	for (let i = 0; i < topRowSquares.length; i++) {
@@ -340,7 +350,21 @@ mouseenterColorSelector(): when player colors change, applies updated event list
 	for (let i = 0; i < p2Pieces.length; i++) {
 		p2Pieces[i].style.backgroundColor = settings.p2Color;
 	}
-};
+}
+
+convertHexToRgb=(hex,trans)=>{
+	const hexRgb = hex.slice(-6).match(/.{1,2}/g);
+	const Rgb = [
+			parseInt(hexRgb[0], 16),
+			parseInt(hexRgb[1], 16),
+			parseInt(hexRgb[2], 16)
+	];
+	if (trans=== undefined){
+		return `rgb(${Rgb[0]},${Rgb[1]},${Rgb[2]})`
+	}else{
+		return `rgba(${Rgb[0]},${Rgb[1]},${Rgb[2]},${trans})`
+	}
+}
 
 // __________________________________________________________________
 
@@ -394,22 +418,22 @@ updateGameHeading = () => {
 };
 
 hideResetBtn = () => {
-	resetBtn.style.visibility = 'hidden';
+	document.getElementById('resetbtn').style.visibility = 'hidden';
 };
 
 showResetBtn = () => {
-	resetBtn.style.visibility = 'visible';
+	document.getElementById('resetbtn').style.visibility = 'visible';
 };
 
-updateLocalStorage = () => {
-	localStorage.setItem('connect4', JSON.stringify(settings));
+updateLocalStorage = (localStorageItem) => {
+	localStorage.setItem('connect4', JSON.stringify(localStorageItem));
 };
 
 resetFunctions = () => {
 	makeBoard();
 	makeHtmlBoard();
 	updateGameHeading();
-	updateLocalStorage();
+	updateLocalStorage(settings);
 };
 
 /* ******************************************************************
@@ -427,6 +451,6 @@ document.getElementById('widthincrease').addEventListener('click', increaseGridW
 document.getElementById('widthdecrease').addEventListener('click', decreaseGridWidth);
 document.getElementById('winnumincrease').addEventListener('click', winNumIncrease);
 document.getElementById('winnumdecrease').addEventListener('click', winNumDecrease);
-p1Color.addEventListener('change', mouseenterColorSelector);
-p2Color.addEventListener('change', mouseenterColorSelector);
-resetBtn.addEventListener('click', resetFunctions);
+document.getElementById('p1Color').addEventListener('change', colorChanger);
+p2Color = document.getElementById('p2Color').addEventListener('change', colorChanger);
+document.getElementById('resetbtn').addEventListener('click', resetFunctions);

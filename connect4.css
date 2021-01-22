@@ -1,21 +1,26 @@
 body {
-  background-color: whitesmoke;
-  font-family: 'Dosis', sans-serif;
+	font-family: 'Dosis', sans-serif;
+	margin: 0px;
 }
 
 #gameheading {
   text-align: center;
-  font-size: 40px;
-  margin: 15px;
+  font-size: 60px;
+	margin: 0px;
+	font-family: lobster;
+	text-shadow: 5px 2px 1px black;
+	border: 1px solid black
 }
 
 #gamediv {
 	margin-left: 25vw;
-	padding: 10px;
+	margin-top: 10px;
+	padding: 15px;
 	display: inline-flex;
 	justify-content: center;
-	border: solid 1px #666;
-	background-color: white;
+	border: solid 1px black;
+	box-shadow: 5px 5px;
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
 #inputs {
@@ -23,11 +28,12 @@ body {
 	height: 100%;
 	padding-top: 5px;
 	padding-bottom: 5px;
-	background-color: whitesmoke;
+	background-color:white;
 	float: left;
 	margin-right: 0.75vw;
 	margin-top:58px;
-	border: solid 1px #666;
+	border: solid 1px black;
+	box-shadow: 2px 2px;
 }
 
 /* game board table */
@@ -35,11 +41,24 @@ body {
 	width: 50px;
 	height: 50px;
 	border: solid 1px #666;
+	background-color: white;
 }
 
 table {
 	/* prevents pieces from being shown above the board when falling into place */
 	overflow: hidden;
+	background-color:whitesmoke;
+	border: 1px solid black;
+	box-shadow: 2px 2px;
+}
+
+/* column-top is table row of clickable areas for each column */
+#column-top td {
+	border: dashed 1px lightgray;
+}
+
+#column-top td:hover {
+	transition: 750ms;
 }
 
 tr.gameRow {
@@ -82,25 +101,10 @@ tr.gameRow {
 	}
 }
 
-/* .p1{
-  background-color: red;
+label {
+	vertical-align: middle;
+	margin-left: 5px;
 }
-.p2{
-  background-color: blue;
-} */
-
-/* column-top is table row of clickable areas for each column */
-#column-top td {
-	border: dashed 1px lightgray;
-}
-
-#column-top td:hover {
-	transition: 750ms;
-}
-
-/* #gridInputs div{
-  float: left;
-} */
 
 button {
 	margin: 0px;
@@ -110,6 +114,14 @@ button {
 	font-size: 30px;
 	background: transparent;
 	vertical-align: middle;
+	text-shadow: -1px 1px 1px #000, 1px 1px 1px #000, 1px -1px 1px #000, -1px -1px 1px #000;
+}
+
+button:hover {
+	background-color: rgba(102, 102, 102, 0.25);
+	border: 1px solid black;
+	padding: 0px;
+	border-radius: 25%;
 }
 
 #resetbtn {
@@ -130,16 +142,4 @@ button {
 
 #resetbtn:hover{
   transform: rotate(360deg);
-}
-
-label {
-	vertical-align: middle;
-	margin-left: 5px;
-}
-
-button:hover {
-	background-color: rgba(102, 102, 102, 0.25);
-	border: 1px solid black;
-	padding: 0px;
-	border-radius: 25%;
 }
